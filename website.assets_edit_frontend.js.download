@@ -1,0 +1,768 @@
+
+/***********************************************************************************************
+*  Filepath: /website/static/src/interactions/carousel/carousel_bootstrap_upgrade_fix.edit.js  *
+*  Lines: 26                                                                                   *
+***********************************************************************************************/
+odoo.define('@website/interactions/carousel/carousel_bootstrap_upgrade_fix.edit', ['@website/interactions/carousel/carousel_bootstrap_upgrade_fix', '@web/core/registry', '@website/core/website_edit_service'], function (require) {
+'use strict';
+let __exports = {};
+const { CarouselBootstrapUpgradeFix } = require("@website/interactions/carousel/carousel_bootstrap_upgrade_fix");
+const { registry } = require("@web/core/registry");
+const { withHistory } = require("@website/core/website_edit_service");
+
+const CarouselBootstrapUpgradeFixEdit = I => class extends I {
+    // Suspend ride in edit mode.
+    carouselOptions = { ride: false, pause: true };
+
+    setup() {
+        super.setup();
+        this.dynamicContent = withHistory(this.dynamicContent);
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.carousel_bootstrap_upgrade_fix", {
+        Interaction: CarouselBootstrapUpgradeFix,
+        mixin: CarouselBootstrapUpgradeFixEdit,
+    });
+
+return __exports;
+});
+;
+
+/****************************************************************************************
+*  Filepath: /website/static/src/interactions/carousel/carousel_section_slider.edit.js  *
+*  Lines: 44                                                                            *
+****************************************************************************************/
+odoo.define('@website/interactions/carousel/carousel_section_slider.edit', ['@web/public/interaction', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { Interaction } = require("@web/public/interaction");
+const { registry } = require("@web/core/registry");
+
+const CarouselSectionSliderEdit = __exports.CarouselSectionSliderEdit = class CarouselSectionSliderEdit extends Interaction {
+    static selector = "section > .carousel";
+    dynamicContent = {
+        ".carousel-control-prev, .carousel-control-next": {
+            "t-att-data-bs-slide": () => undefined,
+            "t-on-mousedown": this.onControlClick,
+        },
+        ".carousel-indicators > *": {
+            "t-att-data-bs-slide-to": () => undefined,
+            "t-on-mousedown": this.onControlClick,
+        },
+    };
+
+    destroy() {
+        const editTranslations = this.services.website_edit.isEditingTranslations();
+        if (!editTranslations) {
+            // Restore the carousel controls.
+            const indicatorEls = this.el.querySelectorAll(".carousel-indicators > *");
+            indicatorEls.forEach((indicatorEl, i) => indicatorEl.setAttribute("data-bs-slide-to", i));
+        }
+    }
+
+    /**
+     * Redirects a carousel control click on the active slide.
+     */
+    onControlClick() {
+        this.el.querySelector(".carousel-item.active").click();
+    }
+}
+
+registry
+    .category("public.interactions.edit")
+    .add("website.carousel_section_slider", {
+        Interaction: CarouselSectionSliderEdit,
+    });
+
+return __exports;
+});
+;
+
+/********************************************************************************
+*  Filepath: /website/static/src/interactions/carousel/carousel_slider.edit.js  *
+*  Lines: 28                                                                    *
+********************************************************************************/
+odoo.define('@website/interactions/carousel/carousel_slider.edit', ['@website/interactions/carousel/carousel_slider', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { CarouselSlider } = require("@website/interactions/carousel/carousel_slider");
+const { registry } = require("@web/core/registry");
+
+const CarouselSliderEdit = I => class extends I {
+    dynamicContent = {
+        ...this.dynamicContent,
+        _root: { "t-on-content_changed": this.onContentChanged },
+    };
+    // Pause carousel in edit mode.
+    carouselOptions = { ride: false, pause: true };
+
+    onContentChanged() {
+        this.computeMaxHeight();
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.carousel_slider", {
+        Interaction: CarouselSlider,
+        mixin: CarouselSliderEdit,
+    });
+
+return __exports;
+});
+;
+
+/***********************************************************************************
+*  Filepath: /website/static/src/interactions/dropdown/hoverable_dropdown.edit.js  *
+*  Lines: 31                                                                       *
+***********************************************************************************/
+odoo.define('@website/interactions/dropdown/hoverable_dropdown.edit', ['@website/interactions/dropdown/hoverable_dropdown', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { HoverableDropdown } = require("@website/interactions/dropdown/hoverable_dropdown");
+const { registry } = require("@web/core/registry");
+
+const HoverableDropdownEdit = I => class extends I {
+    /**
+     * @param {MouseEvent} ev
+     * @param {HTMLElement} currentTargetEl
+     */
+    onMouseEnter(ev, currentTargetEl) {
+        if (this.el.querySelector(".dropdown-toggle.show")) {
+            return;
+        } else {
+            super.onMouseEnter(ev, currentTargetEl);
+        }
+    }
+
+    onMouseLeave() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.hoverable_dropdown", {
+        Interaction: HoverableDropdown,
+        mixin: HoverableDropdownEdit,
+    });
+
+return __exports;
+});
+;
+
+/**************************************************************************
+*  Filepath: /website/static/src/interactions/header/base_header.edit.js  *
+*  Lines: 20                                                              *
+**************************************************************************/
+odoo.define('@website/interactions/header/base_header.edit', ['@website/interactions/header/base_header', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { BaseHeader } = require("@website/interactions/header/base_header");
+const { registry } = require("@web/core/registry");
+
+const BaseHeaderEdit = I => class extends I {
+    adjustPosition() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.base_header", {
+        Interaction: BaseHeader,
+        mixin: BaseHeaderEdit,
+        isAbstract: true,
+    });
+
+return __exports;
+});
+;
+
+/********************************************************************************
+*  Filepath: /website/static/src/interactions/image_shape_hover_effect.edit.js  *
+*  Lines: 24                                                                    *
+********************************************************************************/
+odoo.define('@website/interactions/image_shape_hover_effect.edit', ['@website/interactions/image_shape_hover_effect', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { ImageShapeHoverEffect } = require("@website/interactions/image_shape_hover_effect");
+const { registry } = require("@web/core/registry");
+
+const ImageShapeHoverEffectEdit = I => class extends I {
+    adjustImageSourceFrom(preloadedImageEl) {
+        if (!this.el.dataset.originalSrcBeforeHover) {
+            this.el.dataset.originalSrcBeforeHover = this.originalImgSrc;
+        }
+        super.adjustImageSourceFrom(preloadedImageEl);
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.image_shape_hover_effect", {
+        Interaction: ImageShapeHoverEffect,
+        mixin: ImageShapeHoverEffectEdit,
+    });
+
+return __exports;
+});
+;
+
+/*******************************************************************************
+*  Filepath: /website/static/src/interactions/popup/no_backdrop_popup.edit.js  *
+*  Lines: 37                                                                   *
+*******************************************************************************/
+odoo.define('@website/interactions/popup/no_backdrop_popup.edit', ['@website/interactions/popup/no_backdrop_popup', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { NoBackdropPopup } = require("@website/interactions/popup/no_backdrop_popup");
+const { registry } = require("@web/core/registry");
+
+const NoBackdropPopupEdit = __exports.NoBackdropPopupEdit = (I) => class extends I {
+    start() {
+        super.start();
+        if (this.el.classList.contains("show")) {
+            // Use case: When the "Backdrop" option is disabled in edit mode.
+            // The page scrollbar must be adjusted and events must be added.
+            this.addModalNoBackdropEvents();
+        }
+    }
+
+    addModalNoBackdropEvents() {
+        // We shouldn't normally go through this 2x without removing the
+        // observers in between, but it happens when opening the editor (start)
+        // and then showing the popup (dynamicContent listener).
+        if (this.resizeObserver) {
+            this.removeResizeListener();
+            this.resizeObserver.disconnect();
+        }
+        super.addModalNoBackdropEvents();
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.no_backdrop_popup", {
+        Interaction: NoBackdropPopup,
+        mixin: NoBackdropPopupEdit,
+    });
+
+return __exports;
+});
+;
+
+/**************************************************************************
+*  Filepath: /website/static/src/interactions/popup/shared_popup.edit.js  *
+*  Lines: 21                                                              *
+**************************************************************************/
+odoo.define('@website/interactions/popup/shared_popup.edit', ['@website/interactions/popup/shared_popup', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { SharedPopup } = require("@website/interactions/popup/shared_popup");
+const { registry } = require("@web/core/registry");
+
+const SharedPopupEdit = __exports.SharedPopupEdit = (I) => class extends I {
+    setup() {
+        this.popupShown = true;
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.shared_popup", {
+        Interaction: SharedPopup,
+        mixin: SharedPopupEdit,
+    });
+
+return __exports;
+});
+;
+
+/********************************************************************
+*  Filepath: /website/static/src/interactions/search_modal.edit.js  *
+*  Lines: 23                                                        *
+********************************************************************/
+odoo.define('@website/interactions/search_modal.edit', ['@website/interactions/search_modal', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { SearchModal } = require("@website/interactions/search_modal");
+const { registry } = require("@web/core/registry");
+
+const SearchModalEdit = I => class extends I {
+    dynamicContent = {
+        _root: {
+            "t-on-show.bs.modal.prevent": () => { },
+        },
+    };
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.search_modal", {
+        Interaction: SearchModal,
+        mixin: SearchModalEdit,
+    });
+
+return __exports;
+});
+;
+
+/*****************************************************************
+*  Filepath: /website/static/src/snippets/s_chart/chart.edit.js  *
+*  Lines: 22                                                     *
+*****************************************************************/
+odoo.define('@website/snippets/s_chart/chart.edit', ['@website/snippets/s_chart/chart', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { Chart } = require("@website/snippets/s_chart/chart");
+const { registry } = require("@web/core/registry");
+
+const ChartEdit = I => class extends I {
+    setup() {
+        super.setup();
+        this.noAnimation = true;
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.chart", {
+        Interaction: Chart,
+        mixin: ChartEdit,
+    });
+
+return __exports;
+});
+;
+
+/*************************************************************************
+*  Filepath: /website/static/src/snippets/s_countdown/countdown.edit.js  *
+*  Lines: 22                                                             *
+*************************************************************************/
+odoo.define('@website/snippets/s_countdown/countdown.edit', ['@website/snippets/s_countdown/countdown', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { Countdown } = require("@website/snippets/s_countdown/countdown");
+const { registry } = require("@web/core/registry");
+
+const CountdownEdit = (I) => class extends I {
+    get shouldHideCountdown() {
+        return false;
+    }
+    handleEndCountdownAction() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.countdown", {
+        Interaction: Countdown,
+        mixin: CountdownEdit,
+    });
+
+return __exports;
+});
+;
+
+/*************************************************************************************
+*  Filepath: /website/static/src/snippets/s_dynamic_snippet/dynamic_snippet.edit.js  *
+*  Lines: 23                                                                         *
+*************************************************************************************/
+odoo.define('@website/snippets/s_dynamic_snippet/dynamic_snippet.edit', ['@website/snippets/s_dynamic_snippet/dynamic_snippet', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { DynamicSnippet } = require("@website/snippets/s_dynamic_snippet/dynamic_snippet");
+const { registry } = require("@web/core/registry");
+
+const DynamicSnippetEdit = I => class extends I {
+    setup() {
+        super.setup();
+        this.withSample = true;
+    }
+    callToAction() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.dynamic_snippet", {
+        Interaction: DynamicSnippet,
+        mixin: DynamicSnippetEdit,
+    });
+
+return __exports;
+});
+;
+
+/***************************************************************************
+*  Filepath: /website/static/src/snippets/s_embed_code/embed_code.edit.js  *
+*  Lines: 31                                                               *
+***************************************************************************/
+odoo.define('@website/snippets/s_embed_code/embed_code.edit', ['@website/snippets/s_embed_code/embed_code', '@web/core/registry', '@web/core/l10n/translation'], function (require) {
+'use strict';
+let __exports = {};
+const { EmbedCode } = require("@website/snippets/s_embed_code/embed_code");
+const { registry } = require("@web/core/registry");
+
+const { _t } = require("@web/core/l10n/translation");
+
+const EmbedCodeEdit = I => class extends I {
+    start() {
+        if (this.embedCodeEl.offsetHeight === 0) {
+            // Shows a placeholder message in edit mode to be able to select
+            // the snippet if it's visually empty.
+            const placeholderEl = document.createElement("div");
+            placeholderEl.classList.add("s_embed_code_placeholder", "alert", "alert-info", "pt16", "pb16");
+            placeholderEl.textContent = _t("Your Embed Code snippet doesn't have anything to display. Click on Edit to modify it.");
+            this.embedCodeEl.appendChild(placeholderEl);
+        }
+    }
+    destroy() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.embed_code", {
+        Interaction: EmbedCode,
+        mixin: EmbedCodeEdit,
+    });
+
+return __exports;
+});
+;
+
+/***************************************************************************
+*  Filepath: /website/static/src/snippets/s_google_map/google_map.edit.js  *
+*  Lines: 22                                                               *
+***************************************************************************/
+odoo.define('@website/snippets/s_google_map/google_map.edit', ['@website/snippets/s_google_map/google_map', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { GoogleMap } = require("@website/snippets/s_google_map/google_map");
+const { registry } = require("@web/core/registry");
+
+const GoogleMapEdit = I => class extends I {
+    setup() {
+        super.setup();
+        this.canSpecifyKey = true;
+    }
+}
+
+registry
+    .category("public.interactions.edit")
+    .add("website.google_map", {
+        Interaction: GoogleMap,
+        mixin: GoogleMapEdit,
+    });
+
+return __exports;
+});
+;
+
+/**********************************************************************************
+*  Filepath: /website/static/src/snippets/s_image_gallery/gallery_slider.edit.js  *
+*  Lines: 22                                                                      *
+**********************************************************************************/
+odoo.define('@website/snippets/s_image_gallery/gallery_slider.edit', ['@website/snippets/s_image_gallery/gallery_slider', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { GallerySlider } = require("@website/snippets/s_image_gallery/gallery_slider");
+const { registry } = require("@web/core/registry");
+
+const GallerySliderEdit = I => class extends I {
+    setup() {
+        super.setup();
+        this.hideOnClickIndicator = false;
+    }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website.gallery_slider", {
+        Interaction: GallerySlider,
+        mixin: GallerySliderEdit,
+    });
+
+return __exports;
+});
+;
+
+/***********************************************************************
+*  Filepath: /website/static/src/snippets/s_website_form/form.edit.js  *
+*  Lines: 51                                                           *
+***********************************************************************/
+odoo.define('@website/snippets/s_website_form/form.edit', ['@web/public/interaction', '@web/core/registry', '@website/snippets/s_website_form/form', '@web/core/utils/patch', '@web/core/l10n/dates'], function (require) {
+'use strict';
+let __exports = {};
+const { Interaction } = require("@web/public/interaction");
+const { registry } = require("@web/core/registry");
+const { Form } = require("@website/snippets/s_website_form/form");
+const { patch } = require("@web/core/utils/patch");
+const {
+    formatDate,
+    formatDateTime,
+} = require("@web/core/l10n/dates");
+const { DateTime } = luxon;
+
+const FormDateFormatterEdit = __exports.FormDateFormatterEdit = class FormDateFormatterEdit extends Interaction {
+    static selector = ".s_website_form form .s_website_form_field .s_website_form_input.datetimepicker-input, form.s_website_form .s_website_form_field .s_website_form_input.datetimepicker-input"; // !compatibility
+
+    start() {
+        // We do not initialize the datetime picker in edit mode but want the dates to be formatted.
+        const value = this.el.getAttribute("value");
+        if (value) {
+            const format =
+                this.el.closest(".s_website_form_field").dataset.type === "date"
+                    ? formatDate
+                    : formatDateTime;
+            this.el.value = format(DateTime.fromSeconds(parseInt(value)));
+        }
+    }
+}
+
+registry
+    .category("public.interactions.edit")
+    .add("website.form_date_formatter", {
+        Interaction: FormDateFormatterEdit,
+    });
+
+// Translation mode.
+patch(Form.prototype, {
+    setup() {
+        super.setup();
+        this.editTranslations = this.services.website_edit.isEditingTranslations();
+    },
+    prefillValues() {
+        if (this.editTranslations) {
+            return;
+        }
+        super.prefillValues();
+    },
+});
+
+return __exports;
+});
+;
+
+/***************************************************************
+*  Filepath: /website/static/src/core/website_edit_service.js  *
+*  Lines: 166                                                  *
+***************************************************************/
+odoo.define('@website/core/website_edit_service', ['@web/core/registry', '@web/legacy/js/public/public_root', '@web/public/colibri', '@web/core/utils/patch'], function (require) {
+'use strict';
+let __exports = {};
+const { registry } = require("@web/core/registry");
+const { PublicRoot } = require("@web/legacy/js/public/public_root");
+const { Colibri } = require("@web/public/colibri");
+const { patch } = require("@web/core/utils/patch");
+
+__exports.buildEditableInteractions = buildEditableInteractions; function buildEditableInteractions(builders) {
+    const result = [];
+
+    const mixinPerInteraction = new Map();
+    for (const makeEditable of builders) {
+        mixinPerInteraction.set(makeEditable.Interaction, makeEditable.mixin || ((C) => C));
+    }
+    for (const makeEditable of builders) {
+        if (makeEditable.isAbstract) {
+            continue;
+        }
+        let I = makeEditable.Interaction;
+        // Collect mixins to up to Interaction class in reverse order.
+        const mixins = [];
+        while (I.name !== "Interaction") {
+            const mixin = mixinPerInteraction.get(I);
+            if (mixin) {
+                mixins.push(mixin);
+            } else {
+                console.log(`No mixin defined for: ${I.name}`);
+            }
+            I = I.__proto__;
+        }
+        // Apply mixins from top-most class.
+        let EI = makeEditable.Interaction;
+        while (mixins.length) {
+            EI =  mixins.pop()(EI);
+        }
+        if (!EI.name) {
+            // if we get here, this is most likely because we have an anonymous
+            // class. To make it easier to work with, we can add the name property
+            // by doing a little hack
+            const name = makeEditable.Interaction.name + "__mixin";
+            EI = {[name]: class extends EI {}} [name];
+        }
+        result.push(EI);
+    }
+    return result;
+}
+
+
+registry.category("services").add("website_edit", {
+    dependencies: ["public.interactions"],
+    start(env, { ["public.interactions"]: publicInteractions }) {
+        let editableInteractions = null;
+        let editMode = false;
+
+        return {
+            isEditingTranslations() {
+                return !!publicInteractions.el.closest("html").dataset.edit_translations;
+            },
+            update(target, mode) {
+                // editMode = true;
+                // const currentEditMode = this.website_edit.mode === "edit";
+                const shouldActivateEditInteractions = editMode !== mode;
+                // interactions are already started. we only restart them if the
+                // public root is not just starting.
+
+                publicInteractions.stopInteractions(target);
+                if (shouldActivateEditInteractions) {
+                    if (!editableInteractions) {
+                        const builders = registry.category("public.interactions.edit").getAll();
+                        editableInteractions = buildEditableInteractions(builders);
+                    }
+                    editMode = true;
+                    publicInteractions.editMode = true;
+                    publicInteractions.activate(editableInteractions);
+                } else {
+                    publicInteractions.startInteractions(target);
+                }
+            },
+        };
+    },
+});
+
+
+// Patch PublicRoot.
+
+PublicRoot.include({
+    // This file is lazy loaded, init will not be called when entering edit.
+    /**
+     * @override
+     */
+    _restartInteractions(targetEl, options) {
+        const websiteEdit = this.bindService("website_edit");
+        websiteEdit.update(targetEl, options?.editableMode || false);
+    },
+});
+
+// Patch Colibri.
+
+patch(Colibri.prototype, {
+    protectSyncAfterAsync(interaction, name, fn) {
+        fn = super.protectSyncAfterAsync(interaction, name, fn);
+        const fullName = `${interaction.constructor.name}/${name}`;
+        return (...args) => {
+            // TODO No jQuery ?
+            const wysiwyg = window.$?.("#wrapwrap").data("wysiwyg");
+            wysiwyg?.odooEditor.observerUnactive(fullName);
+            const result = fn(...args);
+            wysiwyg?.odooEditor.observerActive(fullName);
+            return result;
+        };
+    },
+    addListener(target, event, fn, options) {
+        fn = fn.bind(this.interaction);
+        let stealth = true;
+        const parts = event.split(".");
+        if (parts.includes("keepInHistory") || options?.keepInHistory) {
+            stealth = false;
+            event = parts.filter((part) => part !== "keepInHistory").join(".");
+            delete options?.keepInHistory;
+        }
+        // TODO No jQuery ?
+        const wysiwyg = window.$?.("#wrapwrap").data("wysiwyg");
+        let stealthFn = fn;
+        if (wysiwyg?.odooEditor && !fn.isHandler && stealth) {
+            const name = `${this.interaction.constructor.name}/${event}`;
+            stealthFn = (...args) => {
+                wysiwyg.odooEditor.observerUnactive(name);
+                const result = fn(...args);
+                wysiwyg.odooEditor.observerActive(name);
+                return result;
+            };
+        }
+        return super.addListener(target, event, stealthFn, options);
+    },
+    applyAttr(el, attr, value) {
+        // TODO No jQuery ?
+        const wysiwyg = window.$?.("#wrapwrap").data("wysiwyg");
+        const name = `${this.interaction.constructor.name}/${attr}`;
+        wysiwyg?.odooEditor.observerUnactive(name);
+        super.applyAttr(...arguments);
+        wysiwyg?.odooEditor.observerActive(name);
+    },
+    applyTOut(el, value) {
+        // TODO No jQuery ?
+        const wysiwyg = window.$?.("#wrapwrap").data("wysiwyg");
+        const name = `${this.interaction.constructor.name}/t-out`;
+        wysiwyg?.odooEditor.observerUnactive(name);
+        super.applyTOut(...arguments);
+        wysiwyg?.odooEditor.observerActive(name);
+    },
+});
+
+__exports.withHistory = withHistory; function withHistory(dynamicContent) {
+    const result = {};
+    for (const [selector, content] of Object.entries(dynamicContent)) {
+        result[selector] = {};
+        for (const [key, value] of Object.entries(content)) {
+            result[selector][key.startsWith("t-on-") ? `${key}.keepInHistory` : key] = value;
+        }
+    }
+    return result;
+}
+
+return __exports;
+});
+;
+
+/***************************************************************************************
+*  Filepath: /website_payment/static/src/snippets/s_donation/donation_snippet.edit.js  *
+*  Lines: 19                                                                           *
+***************************************************************************************/
+odoo.define('@website_payment/snippets/s_donation/donation_snippet.edit', ['@website_payment/snippets/s_donation/donation_snippet', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { DonationSnippet } = require("@website_payment/snippets/s_donation/donation_snippet");
+const { registry } = require("@web/core/registry");
+
+const DonationSnippetEdit = I => class extends I {
+    onDonateClick() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website_payment.donation_snippet", {
+        Interaction: DonationSnippet,
+        mixin: DonationSnippetEdit,
+    });
+
+return __exports;
+});
+;
+
+/******************************************************************************
+*  Filepath: /website_profile/static/src/interactions/profile_editor.edit.js  *
+*  Lines: 20                                                                  *
+******************************************************************************/
+odoo.define('@website_profile/interactions/profile_editor.edit', ['@website_profile/interactions/profile_editor', '@web/core/registry'], function (require) {
+'use strict';
+let __exports = {};
+const { ProfileEditor } = require("@website_profile/interactions/profile_editor");
+const { registry } = require("@web/core/registry");
+
+const ProfileEditorEdit = I => class extends I {
+    setup() { }
+    async willStart() { }
+};
+
+registry
+    .category("public.interactions.edit")
+    .add("website_profile.website_profile_editor", {
+        Interaction: ProfileEditor,
+        mixin: ProfileEditorEdit,
+    });
+
+return __exports;
+});
+
+
+//# sourceMappingURL=/web/assets/1/f8471e8/website.assets_edit_frontend.js.map
